@@ -1,0 +1,33 @@
+{
+  "xmin": 0,
+  "xmax": 2.3,
+  "tiers": [
+    {
+      "name": "sentence",
+      "xmin": 0,
+      "xmax": 2.3,
+      "intervals": [
+        { "xmin": 0, "xmax": 2.3, "text": "říkej \"ahoj\" dvakrát" }
+      ]
+    },
+    {
+      "name": "phonemes",
+      "xmin": 0,
+      "xmax": 2.3,
+      "intervals": [
+        { "xmin": 0,   "xmax": 0.7, "text": "r̝iːkɛj" },
+        { "xmin": 0.7, "xmax": 1.6, "text": "ʔaɦɔj" },
+        { "xmin": 1.6, "xmax": 2.3, "text": "dʋakraːt" }
+      ]
+    },
+    {
+      "name": "bell",
+      "xmin": 0,
+      "xmax": 2.3,
+      "points": [
+        { "number": 0.9, "mark": "ding" },
+        { "number": 1.3, "mark": "dong" }
+      ]
+    }
+  ]
+}

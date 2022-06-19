@@ -1,0 +1,15 @@
+(data_only_dirs fixtures)
+
+(test
+ (name parser)
+ (modules parser)
+ (deps
+  (glob_files fixtures/*))
+ (libraries textgridaf alcotest jsonaf))
+
+(test
+ (name serializer)
+ (modules serializer)
+ (deps
+  (glob_files fixtures/*))
+ (libraries textgridaf alcotest jsonaf))

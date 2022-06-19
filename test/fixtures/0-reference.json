@@ -1,0 +1,28 @@
+{
+  "xmin": 0,
+  "xmax": 2.3,
+  "tiers": [
+    {
+      "name": "Mary",
+      "xmin": 0,
+      "xmax": 2.3,
+      "intervals": [
+        { "xmin": 0, "xmax": 2.3, "text": "" }
+      ]
+    },
+    {
+      "name": "John",
+      "xmin": 0,
+      "xmax": 2.3,
+      "intervals": [
+        { "xmin": 0, "xmax": 2.3, "text": "" }
+      ]
+    },
+    {
+      "name": "bell",
+      "xmin": 0,
+      "xmax": 2.3,
+      "points": []
+    }
+  ]
+}
