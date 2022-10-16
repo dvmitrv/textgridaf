@@ -1,3 +1,4 @@
 (library
  (name textgridaf)
+ (public_name textgridaf)
  (libraries str angstrom faraday jsonaf uutf))

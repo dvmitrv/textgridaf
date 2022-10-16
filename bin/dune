@@ -1,4 +1,3 @@
 (executable
- (public_name textgridaf)
  (name main)
  (libraries textgridaf))
