@@ -23,7 +23,8 @@ module type S = sig
   val count : t -> int
   val of_points : name:string -> xmin:pos -> xmax:pos -> point list -> t
   val of_intervals : name:string -> xmin:pos -> xmax:pos -> interval list -> t
-  val to_json : ?format:[< `Array | `Object ] -> t -> Jsonaf.t
+  val to_json : ?format:[< `A | `O ] -> t -> Jsonaf.t
+  val of_json : format:[< `A | `O ] -> Jsonaf.t -> (t, string) result
   val to_csv : t -> string list list
 end
 
@@ -55,23 +56,43 @@ module Make (P : Element.POSITION) : S with type pos = P.t = struct
     { name; xmin; xmax; data = `Intervals elts }
 
   let to_json ?format t : Jsonaf.t =
+    let open Decoders_jsonaf.Encode in
     match t with
     | { name; xmin; xmax; data = `Points points } ->
-        `Object
+        obj
           [
-            ("name", `String name);
-            ("xmin", `Number (P.to_string xmin));
-            ("xmax", `Number (P.to_string xmax));
-            ("points", `Array (map points ~f:(Point.to_json ?format)));
+            ("name", string name);
+            ("xmin", number (P.to_string xmin));
+            ("xmax", number (P.to_string xmax));
+            ("points", list Fun.id (map points ~f:(Point.to_json ?format)));
           ]
     | { name; xmin; xmax; data = `Intervals intervals } ->
-        `Object
+        obj
           [
-            ("name", `String name);
-            ("xmin", `Number (P.to_string xmin));
-            ("xmax", `Number (P.to_string xmax));
-            ("intervals", `Array (map intervals ~f:(Interval.to_json ?format)));
+            ("name", string name);
+            ("xmin", number (P.to_string xmin));
+            ("xmax", number (P.to_string xmax));
+            ("intervals", list Fun.id (map intervals ~f:(Interval.to_json ?format)));
           ]
+
+  let decoder ~format =
+    let open Decoders_jsonaf.Decode in
+    let* name = field "name" string in
+    let* xmin = field "xmin" P.decoder in
+    let* xmax = field "xmax" P.decoder in
+    let points = list (Point.decoder ~format) in
+    let intervals = list (Interval.decoder ~format) in
+    let+ data =
+      one_of [
+        "points", field "points" (map (fun ps -> `Points ps) points);
+        "intervals", field "intervals" (map (fun is -> `Intervals is) intervals);
+      ]
+    in
+    { name; xmin; xmax; data }
+
+  let of_json ~format value =
+    Decoders_jsonaf.Decode.decode_value (decoder ~format) value
+    |> Result.map_error Decoders_jsonaf.Decode.string_of_error
 
   let to_csv = function
     | { data = `Points points; _ } ->

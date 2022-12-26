@@ -5,6 +5,9 @@ module type POSITION = sig
   val equal : t -> t -> bool
   val to_string : t -> string
   val of_string : string -> t option
+  val to_json : t -> Jsonaf.t
+  val decoder : t Decoders_jsonaf.Decode.decoder
+  val of_json : Jsonaf.t -> (t, string) Result.t
 end
 
 module type ELEMENT = sig
@@ -25,6 +28,9 @@ module type ELEMENT = sig
 
   val equal : t -> t -> bool
   (** [equal x y] is [true] iff [x] is the same as [y]. *)
+
+  val to_json : ?format:[ `A | `O ] -> t -> Jsonaf.t
+  val of_json : format:[ `A | `O ] -> Jsonaf.t -> (t, string) Result.t
 end
 
 module type POINT = sig

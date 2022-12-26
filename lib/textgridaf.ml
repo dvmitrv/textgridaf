@@ -13,6 +13,12 @@ module Float_position : Element.POSITION with type t = float = struct
     if String.ends_with ~suffix:"." s then trim_last_char s else s
 
   let of_string = Float.of_string_opt
+  let to_json t = `Number (to_string t)
+  let decoder = Decoders_jsonaf.Decode.float
+
+  let of_json value =
+    Decoders_jsonaf.Decode.decode_value decoder value
+    |> Result.map_error Decoders_jsonaf.Decode.string_of_error
 end
 
 module Integer_microseconds_position : Element.POSITION with type t = int =
@@ -29,6 +35,13 @@ struct
   let of_string s =
     let to_microseconds x = Float.to_int (x *. 1_000_000.) in
     Option.map to_microseconds (float_of_string_opt s)
+
+  let to_json t = `Number (Int.to_string t)
+  let decoder = Decoders_jsonaf.Decode.int
+
+  let of_json value =
+    Decoders_jsonaf.Decode.decode_value decoder value
+    |> Result.map_error Decoders_jsonaf.Decode.string_of_error
 end
 
 module Float_textgrid : sig

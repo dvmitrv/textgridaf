@@ -11,12 +11,30 @@ module Make_point (P : POSITION) = struct
   let text p = p.mark
   let equal x y = P.equal x.number y.number && String.equal x.mark y.mark
 
-  let to_json ?format { number; mark } =
-    let number = P.to_string number in
+  let to_json ?format { number = pos; mark } =
+    let open Decoders_jsonaf.Encode in
+    let number = number (P.to_string pos) in
     match format with
-    | Some `Array -> `Array [ `Number number; `String mark ]
-    | None | Some `Object ->
-        `Object [ ("number", `Number number); ("mark", `String mark) ]
+    | Some `A -> list Fun.id [ number; string mark ]
+    | None | Some `O -> obj [ ("number", number); ("mark", string mark) ]
+
+  let decoder ~format =
+    let open Decoders_jsonaf.Decode in
+    let array_decoder =
+      let* pos = index 0 P.decoder in
+      let+ mark = index 1 string in
+      { number = pos; mark }
+    in
+    let object_decoder =
+      let* pos = field "number" P.decoder in
+      let+ mark = field "mark" string in
+      { number = pos; mark }
+    in
+    match format with `A -> array_decoder | `O -> object_decoder
+
+  let of_json ~format value =
+    Decoders_jsonaf.Decode.decode_value (decoder ~format) value
+    |> Result.map_error Decoders_jsonaf.Decode.string_of_error
 
   let to_csv { number; mark } = [ P.to_string number; mark ]
 end
@@ -34,17 +52,33 @@ module Make_interval (P : POSITION) = struct
     P.equal x.xmin y.xmin && P.equal x.xmax y.xmax && String.equal x.text y.text
 
   let to_json ?format { xmin; xmax; text } =
-    let xmin = P.to_string xmin in
-    let xmax = P.to_string xmax in
+    let open Decoders_jsonaf.Encode in
+    let xmin = P.to_json xmin in
+    let xmax = P.to_json xmax in
     match format with
-    | Some `Array -> `Array [ `Number xmin; `Number xmax; `String text ]
-    | None | Some `Object ->
-        `Object
-          [
-            ("xmin", `Number xmin);
-            ("xmax", `Number xmax);
-            ("text", `String text);
-          ]
+    | Some `A -> list Fun.id [ xmin; xmax; string text ]
+    | None | Some `O ->
+        obj [ ("xmin", xmin); ("xmax", xmax); ("text", string text) ]
+
+  let decoder ~format =
+    let open Decoders_jsonaf.Decode in
+    let array_decoder =
+      let* xmin = index 0 P.decoder in
+      let* xmax = index 1 P.decoder in
+      let+ text = index 2 string in
+      { xmin; xmax; text }
+    in
+    let object_decoder =
+      let* xmin = field "xmin" P.decoder in
+      let* xmax = field "xmax" P.decoder in
+      let+ text = field "text" string in
+      { xmin; xmax; text }
+    in
+    match format with `A -> array_decoder | `O -> object_decoder
+
+  let of_json ~format value =
+    Decoders_jsonaf.Decode.decode_value (decoder ~format) value
+    |> Result.map_error Decoders_jsonaf.Decode.string_of_error
 
   let to_csv { xmin; xmax; text } = [ P.to_string xmin; P.to_string xmax; text ]
 end

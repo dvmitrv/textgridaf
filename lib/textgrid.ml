@@ -18,7 +18,7 @@ module type S = sig
   val xmin : t -> pos
   val xmax : t -> pos
   val tiers : t -> tier list
-  val to_json : ?format:[< `Array | `Object ] -> t -> Jsonaf.t
+  val to_json : ?format:[< `A | `O ] -> t -> Jsonaf.t
 end
 
 module Make (P : Element.POSITION) : S with module Position = P = struct
